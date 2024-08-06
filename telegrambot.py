@@ -1,5 +1,4 @@
 import requests
-from config import TELEGRAM
 
 # Functuion to send message to the telegram bot
 def send_telegram_message(bot_id, chat_id, message):
