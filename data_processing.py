@@ -63,7 +63,7 @@ def process_historical_data():
         # Get data on this ticker
         tickerData = yf.Ticker(tickerSymbol)
 
-        df_historical_btc = tickerData.history(period=f"{TIME_PERIODS.get("DAYS_PERIODE")}d")
+        df_historical_btc = tickerData.history(period=f"{TIME_PERIODS.get('DAYS_PERIODE')}d")
 
         return True, "Historical btc prices successfully fetched!", df_historical_btc
 

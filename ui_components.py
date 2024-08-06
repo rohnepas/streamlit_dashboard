@@ -78,8 +78,8 @@ def plot_data(df_merged):
 
     # Plot Fear and Greed Index in the third subchart
     ax3.plot(df_merged["value"], label="Fear and Greed", color="orange")
-    ax3.axhline(y=INDICATORS.get("LOWER_FEAR_AND_GREED"), color="blue", linestyle="--", label=f"{classify_fear_and_greed(INDICATORS.get('LOWER_FEAR_AND_GREED'))} ({INDICATORS.get('LOWER_FEAR_AND_GREED')})")
-    ax3.axhline(y=INDICATORS.get("UPPER_FEAR_AND_GREED"), color="purple", linestyle="--", label=f"{classify_fear_and_greed(INDICATORS.get('UPPER_FEAR_AND_GREED'))} ({INDICATORS.get('UPPER_FEAR_AND_GREED')})")
+    ax3.axhline(y=INDICATORS.get('LOWER_FEAR_AND_GREED'), color="blue", linestyle="--", label=f"{classify_fear_and_greed(INDICATORS.get('LOWER_FEAR_AND_GREED'))} ({INDICATORS.get('LOWER_FEAR_AND_GREED')})")
+    ax3.axhline(y=INDICATORS.get('UPPER_FEAR_AND_GREED'), color="purple", linestyle="--", label=f"{classify_fear_and_greed(INDICATORS.get('UPPER_FEAR_AND_GREED'))} ({INDICATORS.get('UPPER_FEAR_AND_GREED')})")
     ax3.legend()
     ax3.set_title("Fear and Greed Index")
 
