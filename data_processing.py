@@ -101,12 +101,16 @@ def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quanti
 
     # Ensure 'date' column is datetime
     df_historical_btc["date"] = pd.to_datetime(df_historical_btc["date"], errors='coerce')
-    
+
     # Handle any missing dates
     if df_historical_btc["date"].isna().any():
         print("There are missing dates in the data, dropping rows with missing dates")
         df_historical_btc = df_historical_btc.dropna(subset=["date"])
 
+    # Check if 'date' column contains datetime-like values
+    if not pd.api.types.is_datetime64_any_dtype(df_historical_btc["date"]):
+        raise ValueError("The 'date' column is not in datetime format after conversion.")
+    
     # Convert the timezone-aware datetime to timezone-naive if necessary
     if df_historical_btc["date"].dt.tz is not None:
         df_historical_btc["date"] = df_historical_btc["date"].dt.tz_localize(None)
