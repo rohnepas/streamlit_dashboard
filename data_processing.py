@@ -89,13 +89,6 @@ def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quanti
     lower_fear_and_greed (int): The lower threshold value for the Fear and Greed Index.
     upper_fear_and_greed (int): The upper threshold value for the Fear and Greed Index.
 
-    The function performs several data processing steps:
-    - Resets indices, converts date columns to proper format, and cleans up the dataframes.
-    - Computes rolling averages and Mayer Multiple for Bitcoin prices.
-    - Merges the processed dataframes on the "date" column.
-    - Calculates quantiles for Mayer Multiple and adds them as new columns.
-    - Applies a custom logic to determine "buy", "sell", or "hold" signals based on Mayer Multiple and Fear and Greed Index values.
-
     Returns:
     DataFrame: A merged and processed DataFrame with added indicators and trading signals.
     """
@@ -103,11 +96,20 @@ def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quanti
     # Reset the index to turn date into a regular column
     df_historical_btc = df_historical_btc.reset_index()
 
-    #Lower case for backtesting
+    # Lower case for backtesting
     df_historical_btc.columns = [c.lower() for c in df_historical_btc.columns]
-            
-    # Convert the timezone-aware datetime to timezone-naive
-    df_historical_btc["date"] = df_historical_btc["date"].dt.tz_localize(None)
+
+    # Ensure 'date' column is datetime
+    df_historical_btc["date"] = pd.to_datetime(df_historical_btc["date"], errors='coerce')
+    
+    # Handle any missing dates
+    if df_historical_btc["date"].isna().any():
+        print("There are missing dates in the data, dropping rows with missing dates")
+        df_historical_btc = df_historical_btc.dropna(subset=["date"])
+
+    # Convert the timezone-aware datetime to timezone-naive if necessary
+    if df_historical_btc["date"].dt.tz is not None:
+        df_historical_btc["date"] = df_historical_btc["date"].dt.tz_localize(None)
 
     # Delete unused columns
     df_historical_btc = df_historical_btc.drop(["dividends", "stock splits"], axis=1)
@@ -144,6 +146,8 @@ def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quanti
     # Adding the quantiles as new columns in the DataFrame
     df_merged[f"{lower_mm_quantil}_quantile"] = lower_quantile
     df_merged[f"{upper_mm_quantil}_quantile"] = upper_quantile
+
+    return df_merged
             
     # Definition of a function for the signal logic
     def determine_signal(row):
