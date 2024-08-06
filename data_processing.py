@@ -8,15 +8,12 @@ from config import TICKER_SYMBOLS, INDICATORS, TIME_PERIODS, create_fear_and_gre
 def process_fear_and_greed_data():
     """
     Retrieves and processes the Fear and Greed Index data.
-
     This function does not take any parameters. It uses the global variable TIME_PERIODS to determine the number of days for which the Fear and Greed Index data is to be fetched.
-
     Operations performed:
     - Constructs the API URL using the create_fear_and_greed_index_url function with the specified time period.
     - Sends an HTTP request to the constructed URL to fetch the Fear and Greed Index data.
     - Parses the JSON response and converts it into a Pandas DataFrame.
     - Converts the "timestamp" column from integer to datetime format and renames it to "date" for consistency.
-
     Returns:
     Tuple: A tuple containing a boolean, a message, and a DataFrame. 
     - The boolean is True if data fetching is successful, False otherwise.
@@ -46,15 +43,12 @@ def process_fear_and_greed_data():
 def process_historical_data():
     """
     Retrieves historical Bitcoin price data.
-
     This function does not take any parameters. It uses predefined global variables:
     - TICKER_SYMBOLS: A dictionary that contains ticker symbols, with "BTC" for Bitcoin.
     - TIME_PERIODS: A dictionary that contains time periods, with "DAYS_PERIODE" indicating the number of days for which historical data is fetched.
-
     The method performs the following operations:
     - Retrieves the ticker symbol for Bitcoin from the TICKER_SYMBOLS dictionary.
     - Uses the yfinance library to fetch historical price data for Bitcoin based on the specified time period from TIME_PERIODS.
-
     Returns:
     Tuple: A tuple containing a boolean, a message, and a DataFrame. 
     - The boolean is True if data fetching is successful, False otherwise.
@@ -70,17 +64,16 @@ def process_historical_data():
         tickerData = yf.Ticker(tickerSymbol)
 
         df_historical_btc = tickerData.history(period=f"{TIME_PERIODS.get("DAYS_PERIODE")}d")
-        
+
         return True, "Historical btc prices successfully fetched!", df_historical_btc
 
     except Exception as e:
         return False, f"Error fetching historical data: {e}", None
-    
+
 
 def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quantil, upper_mm_quantil, lower_fear_and_greed, upper_fear_and_greed, bigger_sma, smaller_sma):
     """
     Processes and merges two dataframes: historical Bitcoin prices and Fear and Greed Index data.
-    
     Parameters:
     df_historical_btc (DataFrame): A Pandas DataFrame containing historical Bitcoin prices with columns such as "close", "high", "low", etc.
     df_fear_and_greed (DataFrame): A Pandas DataFrame containing Fear and Greed Index data.
@@ -88,32 +81,28 @@ def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quanti
     upper_mm_quantil (float): The upper quantile value for calculating the Mayer Multiple range.
     lower_fear_and_greed (int): The lower threshold value for the Fear and Greed Index.
     upper_fear_and_greed (int): The upper threshold value for the Fear and Greed Index.
-
+    The function performs several data processing steps:
+    - Resets indices, converts date columns to proper format, and cleans up the dataframes.
+    - Computes rolling averages and Mayer Multiple for Bitcoin prices.
+    - Merges the processed dataframes on the "date" column.
+    - Calculates quantiles for Mayer Multiple and adds them as new columns.
+    - Applies a custom logic to determine "buy", "sell", or "hold" signals based on Mayer Multiple and Fear and Greed Index values.
     Returns:
     DataFrame: A merged and processed DataFrame with added indicators and trading signals.
     """
-    
-    # Überprüfen, ob 'date' bereits eine Spalte ist; falls nicht, zurücksetzen des Index
-    if 'date' not in df_historical_btc.columns:
-        df_historical_btc = df_historical_btc.reset_index()
-        df_historical_btc.rename(columns={'index': 'date'}, inplace=True)
-    
-    # Umwandeln der 'date'-Spalte in datetime, falls sie nicht bereits datetime ist
-    if not pd.api.types.is_datetime64_any_dtype(df_historical_btc['date']):
-        df_historical_btc['date'] = pd.to_datetime(df_historical_btc['date'], errors='coerce')
 
-    # Prüfen, ob es noch immer NaT-Werte gibt und diese entfernen
-    if df_historical_btc['date'].isna().any():
-        print("Warnung: Es gibt NaT-Werte im Datensatz nach der Umwandlung.")
-        df_historical_btc = df_historical_btc.dropna(subset=['date'])
+    # Reset the index to turn date into a regular column
+    df_historical_btc = df_historical_btc.reset_index()
 
-    # Überprüfen, ob Zeitzone vorhanden ist und konvertieren, falls nötig
-    if df_historical_btc['date'].dt.tz is not None:
-        df_historical_btc['date'] = df_historical_btc['date'].dt.tz_convert(None)
+    #Lower case for backtesting
+    df_historical_btc.columns = [c.lower() for c in df_historical_btc.columns]
+
+    # Convert the timezone-aware datetime to timezone-naive
+    df_historical_btc["date"] = df_historical_btc["date"].dt.tz_localize(None)
 
     # Delete unused columns
     df_historical_btc = df_historical_btc.drop(["dividends", "stock splits"], axis=1)
-    
+
     # Add smaller SMA - see config.py
     df_historical_btc[f"{bigger_sma}_day_ma"] = df_historical_btc["close"].rolling(window=bigger_sma).mean()
 
@@ -122,7 +111,7 @@ def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quanti
 
     # Add 200 days SMA for calculating Mayer Multiple
     df_historical_btc["200_days_sma_for_mm"] = df_historical_btc["close"].rolling(window=200).mean()
-            
+
     # Add Mayer Multiple
     df_historical_btc["mayer_multiple"] = df_historical_btc["close"] / df_historical_btc["200_days_sma_for_mm"]
 
@@ -137,7 +126,7 @@ def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quanti
     # Convert "Value" to numeric, coercing errors to NaN
     df_fear_and_greed["value"] = pd.to_numeric(df_fear_and_greed["value"], errors="coerce")
 
-    df_merged = pd.merge(df_historical_btc, df_fear_and_greed, on="date", how="left")
+    df_merged = pd.merge(df_historical_btc, df_fear_and_greed, left_on="date", right_on="date", how="left")
 
     # Calculation of the quantiles for Mayer Multiple
     lower_quantile = df_historical_btc["mayer_multiple"].quantile(lower_mm_quantil)
@@ -147,8 +136,6 @@ def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quanti
     df_merged[f"{lower_mm_quantil}_quantile"] = lower_quantile
     df_merged[f"{upper_mm_quantil}_quantile"] = upper_quantile
 
-    return df_merged
-            
     # Definition of a function for the signal logic
     def determine_signal(row):
         # Dynamically construct the key strings
@@ -168,30 +155,25 @@ def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quanti
 
     df_merged.set_index("date", inplace=True)
 
-    df_merged.to_csv('merged_dataframe.csv', index=False)
-
     return df_merged
 
 
 def calculate_sell_and_buy_history(df_merged):
     """
     Filters and processes the merged DataFrame to create a history of buy and sell trades.
-
     Parameters:
     df_merged (DataFrame): A Pandas DataFrame containing merged historical price data and Fear and Greed Index data with trading signals.
-
     This function:
     - Filters the DataFrame to keep only rows with 'buy' or 'sell' signals.
     - Iterates through these filtered rows to create a chronological history of trades.
     - Removes unnecessary columns from the final trade history DataFrame.
-
     Returns:
     Tuple: A tuple containing a boolean, a message, and a DataFrame. 
     - The boolean is True if trades were identified, False if no trades were triggered with the given parameters.
     - The message provides information about the presence or absence of trades.
     - The DataFrame contains the history of trades if any were identified; otherwise, it's None.
     """
-    
+
     filtered_df = df_merged[df_merged["signal"].isin(["buy", "sell"])]
 
     # Initialize the status variable and a list to store the rows
@@ -218,7 +200,7 @@ def calculate_sell_and_buy_history(df_merged):
         # Remove unnecessary columns
         sell_and_buy_history = sell_and_buy_history.drop(["open", "high", "low", "200_days_sma_for_mm", f"{INDICATORS.get('BIGGER_SMA')}_day_ma", f"{INDICATORS.get('SMALLER_SMA')}_day_ma", "value"], axis=1)
         return True, "Trades were identified in the given time frame", sell_and_buy_history
-    
+
 
 def classify_fear_and_greed(value):
     if 0 <= value <= 25:
@@ -233,17 +215,3 @@ def classify_fear_and_greed(value):
         return "Extreme Greed"
     else:
         return "Invalid Value" 
-    
-
-
-
-
-    
-
-    
-
-
-
-
-
-
