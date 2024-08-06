@@ -50,19 +50,19 @@ def plot_data(df_merged):
 
     # Plot BTC close, SMA100, SMA200, and Bollinger Bands in the main chart
     ax1.plot(df_merged["close"], label="close")
-    ax1.plot(df_merged[f"{INDICATORS.get("SMALLER_SMA")}_day_ma"], label=f"{INDICATORS.get("SMALLER_SMA")}_SMA")
-    ax1.plot(df_merged[f"{INDICATORS.get("BIGGER_SMA")}_day_ma"], label=f"{INDICATORS.get("BIGGER_SMA")}_SMA")
+    ax1.plot(df_merged[f"{INDICATORS.get('SMALLER_SMA')}_day_ma"], label=f"{INDICATORS.get('SMALLER_SMA')}_SMA")
+    ax1.plot(df_merged[f"{INDICATORS.get('BIGGER_SMA')}_day_ma"], label=f"{INDICATORS.get('BIGGER_SMA')}_SMA")
     ax1.legend()
     ax1.set_title("BTC Closing Prices, SMAs and Bollinger Bands")
 
     # Calculating the quantiles for Mayer Multiple
-    lower_quantile = df_merged["mayer_multiple"].quantile(INDICATORS.get("LOWER_MM_QUANTIL"))
-    upper_quantile = df_merged["mayer_multiple"].quantile(INDICATORS.get("UPPER_MM_QUANTIL"))
+    lower_quantile = df_merged["mayer_multiple"].quantile(INDICATORS.get('LOWER_MM_QUANTIL'))
+    upper_quantile = df_merged["mayer_multiple"].quantile(INDICATORS.get('UPPER_MM_QUANTIL'))
         
      # Plot Mayer Multiple in the second subchart
     ax2.plot(df_merged["mayer_multiple"], label="Mayer Multiple", color="orange")
-    ax2.axhline(y=lower_quantile, color="blue", linestyle="--", label=f"{INDICATORS.get("LOWER_MM_QUANTIL")} quantil")
-    ax2.axhline(y=upper_quantile, color="purple", linestyle="--", label=f"{INDICATORS.get("UPPER_MM_QUANTIL")} quantil")
+    ax2.axhline(y=lower_quantile, color="blue", linestyle="--", label=f"{INDICATORS.get('LOWER_MM_QUANTIL')} quantil")
+    ax2.axhline(y=upper_quantile, color="purple", linestyle="--", label=f"{INDICATORS.get('UPPER_MM_QUANTIL')} quantil")
 
     # Fill between Mayer Multiple and lower/upper quantile lines
     ax2.fill_between(df_merged.index, df_merged["mayer_multiple"], lower_quantile, 
@@ -78,8 +78,8 @@ def plot_data(df_merged):
 
     # Plot Fear and Greed Index in the third subchart
     ax3.plot(df_merged["value"], label="Fear and Greed", color="orange")
-    ax3.axhline(y=INDICATORS.get("LOWER_FEAR_AND_GREED"), color="blue", linestyle="--", label=f"{classify_fear_and_greed(INDICATORS.get("LOWER_FEAR_AND_GREED"))} ({INDICATORS.get("LOWER_FEAR_AND_GREED")})")
-    ax3.axhline(y=INDICATORS.get("UPPER_FEAR_AND_GREED"), color="purple", linestyle="--", label=f"{classify_fear_and_greed(INDICATORS.get("UPPER_FEAR_AND_GREED"))} ({INDICATORS.get("UPPER_FEAR_AND_GREED")})")
+    ax3.axhline(y=INDICATORS.get("LOWER_FEAR_AND_GREED"), color="blue", linestyle="--", label=f"{classify_fear_and_greed(INDICATORS.get('LOWER_FEAR_AND_GREED'))} ({INDICATORS.get('LOWER_FEAR_AND_GREED')})")
+    ax3.axhline(y=INDICATORS.get("UPPER_FEAR_AND_GREED"), color="purple", linestyle="--", label=f"{classify_fear_and_greed(INDICATORS.get('UPPER_FEAR_AND_GREED'))} ({INDICATORS.get('UPPER_FEAR_AND_GREED')})")
     ax3.legend()
     ax3.set_title("Fear and Greed Index")
 
