@@ -1,0 +1,14 @@
+# Ignore __pycache__ directories
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ignore specific data files
+*.csv
+*.xlsx
+*.json
+
+# Ignore other unnecessary files
+*.log
+*.tmp
