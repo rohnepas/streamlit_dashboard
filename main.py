@@ -1,4 +1,4 @@
-from config import setup_page_config, INDICATORS, TELEGRAM
+from config import setup_page_config, INDICATORS
 from ui_components import loadUiComponents
 import streamlit as st
 from data_processing import process_fear_and_greed_data, process_historical_data, process_and_merge_data, calculate_sell_and_buy_history
