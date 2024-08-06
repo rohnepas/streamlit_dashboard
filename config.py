@@ -30,11 +30,6 @@ TICKER_SYMBOLS = {
     "BTC": "BTC-USD"
 }
 
-TELEGRAM = {
-    "BOT_TOKEN" : "7015862860:AAF8BYp5JIrg6Rwvcksu2tKvNZSAm8Ur2S0",
-    "CHAT_ID" : "1116929823"
-}
-
 # Days for metrics
 DAYS_FOR_METRICS = 1
 
