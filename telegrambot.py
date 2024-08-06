@@ -2,10 +2,10 @@ import requests
 from config import TELEGRAM
 
 # Functuion to send message to the telegram bot
-def send_telegram_message(message):
-    url = f'https://api.telegram.org/bot{TELEGRAM.get("BOT_TOKEN")}/sendMessage'
+def send_telegram_message(bot_id, chat_id, message):
+    url = f'https://api.telegram.org/bot{bot_id}/sendMessage'
     data = {
-        'chat_id': TELEGRAM.get("CHAT_ID"),
+        'chat_id': chat_id,
         'text': message,
         'parse_mode': 'HTML'
     }
