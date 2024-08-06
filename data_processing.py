@@ -80,7 +80,7 @@ def process_historical_data():
 def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quantil, upper_mm_quantil, lower_fear_and_greed, upper_fear_and_greed, bigger_sma, smaller_sma):
     """
     Processes and merges two dataframes: historical Bitcoin prices and Fear and Greed Index data.
-
+    
     Parameters:
     df_historical_btc (DataFrame): A Pandas DataFrame containing historical Bitcoin prices with columns such as "close", "high", "low", etc.
     df_fear_and_greed (DataFrame): A Pandas DataFrame containing Fear and Greed Index data.
@@ -93,27 +93,23 @@ def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quanti
     DataFrame: A merged and processed DataFrame with added indicators and trading signals.
     """
     
-    # Reset the index to turn date into a regular column
-    df_historical_btc = df_historical_btc.reset_index()
-
-    # Lower case for backtesting
-    df_historical_btc.columns = [c.lower() for c in df_historical_btc.columns]
-
-    # Ensure 'date' column is datetime
-    df_historical_btc["date"] = pd.to_datetime(df_historical_btc["date"], errors='coerce')
-
-    # Handle any missing dates
-    if df_historical_btc["date"].isna().any():
-        print("There are missing dates in the data, dropping rows with missing dates")
-        df_historical_btc = df_historical_btc.dropna(subset=["date"])
-
-    # Check if 'date' column contains datetime-like values
-    if not pd.api.types.is_datetime64_any_dtype(df_historical_btc["date"]):
-        raise ValueError("The 'date' column is not in datetime format after conversion.")
+    # Überprüfen, ob 'date' bereits eine Spalte ist; falls nicht, zurücksetzen des Index
+    if 'date' not in df_historical_btc.columns:
+        df_historical_btc = df_historical_btc.reset_index()
+        df_historical_btc.rename(columns={'index': 'date'}, inplace=True)
     
-    # Convert the timezone-aware datetime to timezone-naive if necessary
-    if df_historical_btc["date"].dt.tz is not None:
-        df_historical_btc["date"] = df_historical_btc["date"].dt.tz_localize(None)
+    # Umwandeln der 'date'-Spalte in datetime, falls sie nicht bereits datetime ist
+    if not pd.api.types.is_datetime64_any_dtype(df_historical_btc['date']):
+        df_historical_btc['date'] = pd.to_datetime(df_historical_btc['date'], errors='coerce')
+
+    # Prüfen, ob es noch immer NaT-Werte gibt und diese entfernen
+    if df_historical_btc['date'].isna().any():
+        print("Warnung: Es gibt NaT-Werte im Datensatz nach der Umwandlung.")
+        df_historical_btc = df_historical_btc.dropna(subset=['date'])
+
+    # Überprüfen, ob Zeitzone vorhanden ist und konvertieren, falls nötig
+    if df_historical_btc['date'].dt.tz is not None:
+        df_historical_btc['date'] = df_historical_btc['date'].dt.tz_convert(None)
 
     # Delete unused columns
     df_historical_btc = df_historical_btc.drop(["dividends", "stock splits"], axis=1)
@@ -141,7 +137,7 @@ def process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quanti
     # Convert "Value" to numeric, coercing errors to NaN
     df_fear_and_greed["value"] = pd.to_numeric(df_fear_and_greed["value"], errors="coerce")
 
-    df_merged = pd.merge(df_historical_btc, df_fear_and_greed, left_on="date", right_on="date", how="left")
+    df_merged = pd.merge(df_historical_btc, df_fear_and_greed, on="date", how="left")
 
     # Calculation of the quantiles for Mayer Multiple
     lower_quantile = df_historical_btc["mayer_multiple"].quantile(lower_mm_quantil)
