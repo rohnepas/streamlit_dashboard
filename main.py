@@ -1,4 +1,4 @@
-from config import setup_page_config, INDICATORS
+from config import setup_page_config, INDICATORS, TELEGRAM
 from ui_components import loadUiComponents
 import streamlit as st
 from data_processing import process_fear_and_greed_data, process_historical_data, process_and_merge_data, calculate_sell_and_buy_history
@@ -26,7 +26,7 @@ def main():
             if count % (3600000 // 15000) == 0:  # Ensuring the message sends once in the first hour
                 now = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
                 formatted_message = f"BTC Trading Signal on {now}: <b>your_signal</b>"
-                send_telegram_message(formatted_message)
+                send_telegram_message(st.secrets["BOT_ID"], st.secrets["CHAT_ID"],formatted_message)
 
 def fetch_and_process_data_dashboard():
     return fetch_and_process_data(INDICATORS.get("LOWER_MM_QUANTIL"), INDICATORS.get("UPPER_MM_QUANTIL"), INDICATORS.get("LOWER_FEAR_AND_GREED"), INDICATORS.get("UPPER_FEAR_AND_GREED"), INDICATORS.get("BIGGER_SMA"), INDICATORS.get("SMALLER_SMA"))
