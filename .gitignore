@@ -9,9 +9,6 @@ __pycache__/
 *.xlsx
 *.json
 
-# Exception: Do not ignore checkbox_state.json
-!checkbox_state.json
-
 # Ignore other unnecessary files
 *.log
 *.tmp
