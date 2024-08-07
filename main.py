@@ -1,32 +1,45 @@
 from config import setup_page_config, INDICATORS
 from ui_components import loadUiComponents
 import streamlit as st
-from data_processing import process_fear_and_greed_data, process_historical_data, process_and_merge_data, calculate_sell_and_buy_history
-from datetime import datetime, time
+#from datetime import datetime, time
+from data_processing import process_fear_and_greed_data, process_historical_data, process_and_merge_data
 from streamlit_autorefresh import st_autorefresh
-from telegrambot import send_telegram_message
-import pandas as pd
+import json
+import os
 
+def load_checkbox_state():
+    if os.path.exists('checkbox_state.json'):
+        with open('checkbox_state.json', 'r') as f:
+            config = json.load(f)
+            return config.get('sendTelegramMessage', False)
+    return False
+
+def save_checkbox_state(state):
+    with open('checkbox_state.json', 'w') as f:
+        json.dump({'sendTelegramMessage': state}, f)
 
 def main():
     setup_page_config()  # Configure the Streamlit page
 
     # Auto-refresh every hour (3600000 ms - every hour)
-    count = st_autorefresh(interval=3600000, limit=None, key="data_refresh")
+    st_autorefresh(interval=3600000, limit=None, key="data_refresh")
     
     loadUiComponents()  # Load UI components
-     # Check if the current time is 8:00 AM
     st.divider()
-    sendTelegramMessage = st.checkbox("Send trading singnal to telegram bot")
+    
+    # Load the saved state of the checkbox
+    if 'sendTelegramMessage' not in st.session_state:
+        st.session_state.sendTelegramMessage = load_checkbox_state()
 
-    if sendTelegramMessage:
-        current_time = datetime.now().time()
-        if current_time >= time(8, 0) and current_time < time(9, 0):
-            # Send the Telegram message only once at 8:00 AM
-            if count % (3600000 // 15000) == 0:  # Ensuring the message sends once in the first hour
-                now = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-                formatted_message = f"BTC Trading Signal on {now}: <b>your_signal</b>"
-                send_telegram_message(st.secrets["BOT_ID"], st.secrets["CHAT_ID"],formatted_message)
+    # Create the checkbox with the loaded state
+    sendTelegramMessage = st.checkbox("Send trading signal to telegram bot", value=st.session_state.sendTelegramMessage)
+
+    # Save the state when the checkbox is changed
+    if sendTelegramMessage != st.session_state.sendTelegramMessage:
+        st.session_state.sendTelegramMessage = sendTelegramMessage
+        save_checkbox_state(sendTelegramMessage)
+
+    st.write("Checkbox state:", sendTelegramMessage)
 
 def fetch_and_process_data_dashboard():
     return fetch_and_process_data(INDICATORS.get("LOWER_MM_QUANTIL"), INDICATORS.get("UPPER_MM_QUANTIL"), INDICATORS.get("LOWER_FEAR_AND_GREED"), INDICATORS.get("UPPER_FEAR_AND_GREED"), INDICATORS.get("BIGGER_SMA"), INDICATORS.get("SMALLER_SMA"))
@@ -52,8 +65,6 @@ def fetch_and_process_data(lower_mm_quantil, upper_mm_quantil, lower_fear_and_gr
 
     if fear_and_greed_fetched and historical_data_fetched:
         df_merged = process_and_merge_data(df_historical_btc, df_fear_and_greed, lower_mm_quantil, upper_mm_quantil, lower_fear_and_greed, upper_fear_and_greed, bigger_sma, smaller_sma)
-        
-        #df_merged = process_and_merge_data(df_historical_btc, df_fear_and_greed, INDICATORS.get("LOWER_MM_QUANTIL"), INDICATORS.get("UPPER_MM_QUANTIL"), INDICATORS.get("LOWER_FEAR_AND_GREED"), INDICATORS.get("UPPER_FEAR_AND_GREED"), INDICATORS.get("BIGGER_SMA"), INDICATORS.get("SMALLER_SMA"))
         combined_message = "Fear and Greed Data: " + fear_and_greed_message + " | Historical Data: " + historical_data_message
         return True, combined_message, df_merged
     else:
@@ -64,10 +75,6 @@ def create_buy_and_sell_history(df_merged):
     df_sell_and_buy_history = calculate_sell_and_buy_history(df_merged)
     st.dataframe(df_sell_and_buy_history)
     return df_sell_and_buy_history
-    
 
 if __name__ == "__main__":
     main()  # Run the main function
-
-
-
