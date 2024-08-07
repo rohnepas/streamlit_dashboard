@@ -14,7 +14,7 @@ BTC Trading Dashboard is a Streamlit application that provides insights into Bit
 
 ## Introduction
 
-This project aims to provide a comprehensive dashboard for monitoring Bitcoin trading signals and market data. IThe dashboard takes into account the Mayer Multiple as well as the Bitcoin Fear and Greed Index. t also includes functionality to send trading signals to a Telegram bot.
+This project aims to provide a comprehensive dashboard for monitoring Bitcoin trading signals and market data. The dashboard takes into account the Mayer Multiple as well as the Bitcoin Fear and Greed Index. It also includes functionality to send trading signals to a Telegram bot.
 
 ### Mayer Multiple
 
