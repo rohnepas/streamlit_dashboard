@@ -5,7 +5,7 @@ on:
     branches:
       - TELEGRAM_BOT_OPTIMIZATIONS  # Name des Branches, auf dem der Workflow ausgeführt werden soll
   schedule:
-    - cron: '*/2 * * * *'  # This cron job runs every 2 minutes
+    - cron: '*/8 * * * *'  # This cron job runs every 8 minutes
   workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
