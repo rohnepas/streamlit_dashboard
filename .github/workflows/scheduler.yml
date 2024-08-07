@@ -1,9 +1,12 @@
 name: Run scheduler script
 
 on:
+  push:
+    branches:
+      - TELEGRAM_BOT_OPTIMIZATIONS  # Name des Branches, auf dem der Workflow ausgeführt werden soll
   schedule:
-    - cron: '*/2 * * * *' # This cron job runs every 2 minutes
-  workflow_dispatch: # Allows manual triggering of the workflow
+    - cron: '*/2 * * * *'  # This cron job runs every 2 minutes
+  workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
   run-script:
