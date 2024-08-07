@@ -3,14 +3,17 @@ name: Run scheduler script
 on:
   push:
     branches:
-      - TELEGRAM_BOT_OPTIMIZATIONS  # Name des Branches, auf dem der Workflow ausgeführt werden soll
+      - TELEGRAM_BOT_OPTIMIZATIONS  # Trigger on push to this branch
   schedule:
-    - cron: '*/8 * * * *'  # This cron job runs every 8 minutes
-  workflow_dispatch:  # Allows manual triggering of the workflow
+    - cron: '*/8 * * * *'  # Run every 8 minutes
+  workflow_dispatch:
+    branches:
+      - TELEGRAM_BOT_OPTIMIZATIONS  # Allow manual triggering on this branch
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/TELEGRAM_BOT_OPTIMIZATIONS'  # Ensure job runs only on this branch
 
     steps:
       - name: Checkout repository
