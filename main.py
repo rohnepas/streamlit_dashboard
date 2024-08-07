@@ -25,11 +25,21 @@ def send_trading_signal(df_merged):
     sendTelegramMessage = load_checkbox_state()
 
     if sendTelegramMessage:
-        signal_value = df_merged["signal"].iloc[-1]
+        signal_value = df_merged["signal"].iloc[-1].upper()  # Convert signal value to uppercase
+        price = df_merged["close"].iloc[-1]
+        fear_and_greed_value = df_merged["value"].iloc[-1]
+        
         # Use pytz to get the current time in Zurich
         tz = pytz.timezone('Europe/Zurich')
         now = datetime.now(tz).strftime("%d.%m.%Y %H:%M:%S")
-        formatted_message = f"BTC Trading Signal on {now}: <b>{signal_value}</b>"
+        
+        formatted_message = (
+            f"BTC Trading Dashboard on {now}:\n"
+            f"Signal: <b>{signal_value}</b>\n"
+            f"Price: <b>{price}</b>\n"
+            f"Fear and Greed Index: <b>{fear_and_greed_value}</b>"
+        )
+        
         send_telegram_message(os.getenv("BOT_ID"), os.getenv("CHAT_ID"), formatted_message)
 
 def main():
