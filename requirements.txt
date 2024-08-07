@@ -3,4 +3,5 @@ pandas==1.3.3
 requests==2.31.0
 matplotlib==3.8.2
 yfinance==0.2.33
-streamlit-autorefresh==0.0.1  # Replace with actual version if necessary
+#streamlit-autorefresh==0.0.1
+pytz==2023.3
