@@ -23,7 +23,9 @@ def send_trading_signal(df_merged):
     if sendTelegramMessage:
         current_time = datetime.now().time()
         print(f"Current time: {current_time}")
-        if current_time >= time(8, 0) and current_time < time(9, 0):
+        # Test mode: Always send for testing purposes
+        test_mode = True  # Change this to False for production
+        if test_mode or (current_time >= time(8, 0) and current_time < time(9, 0)):
             signal_value = df_merged["signal"].iloc[-1]
             now = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
             formatted_message = f"BTC Trading Signal on {now}: <b>{signal_value}</b>"
