@@ -5,8 +5,9 @@ on:
     branches:
       - main  # Trigger on push to main branch
   schedule:
-    - cron: '0 8 * * *'  # Run daily at 08:00 AM
-    - cron: '0 17 * * *'  # Run daily at 17:00 PM
+    # Adjust for UTC based on Zurich time (CET/CEST)
+    - cron: '0 7 * * *'  # Run daily at 08:00 AM Zurich time (07:00 AM UTC during standard time)
+    - cron: '0 16 * * *'  # Run daily at 05:00 PM Zurich time (04:00 PM UTC during standard time)
   workflow_dispatch:  # Allow manual triggering of the workflow
 
 jobs:
