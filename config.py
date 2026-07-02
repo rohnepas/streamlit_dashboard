@@ -67,10 +67,6 @@ BITCOIN_HALVINGS = {
     4: {"date": "2024-04-20", "block": 840000, "reward": "3.125 BTC"},
 }
 
-TELEGRAM = {
-    "SEND_MESSAGE": True
-}
-
 # Days for metrics
 DAYS_FOR_METRICS = 1
 

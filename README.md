@@ -1,6 +1,6 @@
 # BTC Strategy Dashboard
 
-A Streamlit dashboard that gives an at-a-glance overview of Bitcoin market conditions using a fixed set of independent buy and sell signals. It does not make decisions or give financial advice. It shows each signal's condition, its current value, and how far the market would have to move to trigger it. The UI language is German.
+A Streamlit dashboard that gives an at-a-glance overview of Bitcoin market conditions using a fixed set of independent buy and sell signals. It does not make decisions or give financial advice. It shows the current BTC price, each signal's condition, its current value, and how far the market would have to move to trigger it. The UI language is German.
 
 ## The 4+4 signal system
 
@@ -58,19 +58,6 @@ streamlit run main.py
 
 All thresholds live in `config.py` under `STRATEGY_CONFIG`.
 
-## Telegram notifications (optional)
-
-`scheduler.py` sends the current signal to a Telegram chat. It runs twice daily via GitHub Actions (`.github/workflows/scheduler.yml`) using repository secrets, no credentials are stored in the code.
-
-For local use, copy `.env.example` to `.env` and fill in your own values:
-
-```
-BOT_ID=your_telegram_bot_token
-CHAT_ID=your_telegram_chat_id
-```
-
-Create a bot via [@BotFather](https://t.me/botfather) on Telegram. The `.env` file is gitignored.
-
 ## Project structure
 
 ```
@@ -80,9 +67,6 @@ strategy.py          signal logic and price target derivations
 data_processing.py   data fetching, merging, on-chain sources
 helpers.py           thin wrapper around data fetching
 config.py            all configuration and thresholds
-scheduler.py         Telegram notification job (GitHub Actions)
-telegrambot.py       Telegram API wrapper
-cleanup_old_runs.py  deletes old workflow runs (GitHub Actions)
 ```
 
 ## Disclaimer

@@ -27,24 +27,38 @@ FONT_FAMILY = 'system-ui, -apple-system, "Segoe UI", sans-serif'
 
 
 def show_app_header(last_date):
-    """Zeigt App Header mit einer einzigen, knappen Erklärungszeile."""
+    """Zeigt App Header mit einer kurzen Erklärung, die auch Neulinge verstehen."""
     st.title("BTC Strategy Dashboard")
     st.caption(
-        f"Letzte Daten: {last_date}. 4 Kauf- und 4 Verkaufssignale, ohne automatische Empfehlung, "
-        "Details auf jeder Kachel."
+        "Dieses Dashboard beobachtet acht verschiedene Signale für Bitcoin: vier sprechen "
+        "für einen Kauf, vier für einen Verkauf. Jedes Signal wird für sich allein bewertet, "
+        "die Signale hängen nicht voneinander ab und werden nicht zu einer Gesamtempfehlung "
+        f"verrechnet. Was jedes Signal bedeutet, steht auf seiner Kachel. Letzte Daten: {last_date}."
     )
 
 
-TILE_HEIGHT = 172  # feste Höhe -> alle Signal-Kacheln gleich groß, egal wie lang Wert/Distanz-Text sind
+def show_current_price(df_merged):
+    """Zeigt den aktuellen Bitcoin-Kurs in USD mit Veränderung zum Vortag."""
+    price = df_merged['close'].iloc[-1]
+    delta_str = None
+    if len(df_merged) >= 2:
+        prev = df_merged['close'].iloc[-2]
+        if prev:
+            pct = (price - prev) / prev * 100
+            delta_str = f"{pct:+.1f}% seit Vortag"
+    st.metric("Bitcoin-Kurs (USD)", f"${price:,.0f}", delta=delta_str)
 
 
 def _show_signal_tile(active, name, value_str, buy_side, gap=None):
-    """Zeigt eine Signal-Kachel als native Streamlit-Card (kein HTML/CSS), feste Höhe.
+    """Zeigt eine Signal-Kachel als native Streamlit-Card (kein HTML/CSS).
+    height='stretch' statt fester Pixelhöhe: Kacheln derselben Zeile werden gleich
+    hoch (so hoch wie die höchste), aber Inhalt wird nie abgeschnitten. Eine feste
+    Höhe hat auf dem Handy zu internem Scrollen in der Kachel geführt.
     Statt einer immer sichtbaren Beschreibung zeigt die Kachel eine Statuszeile,
     was 'aktiv'/'inaktiv' hier konkret bedeutet. Die volle Erklärung steht im
     gemeinsamen Erklärungs-Abschnitt unter dem Kachel-Raster.
     """
-    with st.container(border=True, height=TILE_HEIGHT):
+    with st.container(border=True, height="stretch"):
         header_col, badge_col = st.columns([0.62, 0.38], vertical_alignment="center")
         header_col.markdown(f"**{name}**")
         with badge_col:
@@ -421,6 +435,9 @@ def loadUiComponents():
     last_date = df_merged.index[-1].strftime('%d.%m.%Y')
     show_app_header(last_date)
 
+    # Aktueller Bitcoin-Kurs
+    show_current_price(df_merged)
+
     st.divider()
 
     # 1. Signal-Dashboard (4+4 Signale)
@@ -436,9 +453,10 @@ def loadUiComponents():
 
     st.divider()
 
-    # 3. Charts
-    st.markdown("#### Charts")
-    st.plotly_chart(create_price_chart(df_merged, cvdd_current), width='stretch')
-    st.plotly_chart(create_mayer_multiple_chart(df_merged), width='stretch')
-    st.plotly_chart(create_fear_greed_chart(df_merged), width='stretch')
-    st.plotly_chart(create_mvrv_meter(mvrv_current), width='stretch')
+    # 3. Charts, standardmaessig eingeklappt: auf dem Handy belegen die vier Charts
+    # sonst enorm viel Scrollweg, auf dem Desktop kostet das Aufklappen einen Klick.
+    with st.expander(":material/monitoring: Charts anzeigen", expanded=False):
+        st.plotly_chart(create_price_chart(df_merged, cvdd_current), width='stretch')
+        st.plotly_chart(create_mayer_multiple_chart(df_merged), width='stretch')
+        st.plotly_chart(create_fear_greed_chart(df_merged), width='stretch')
+        st.plotly_chart(create_mvrv_meter(mvrv_current), width='stretch')
