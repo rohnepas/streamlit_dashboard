@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+venv/
+env/
+ENV/
+
+# Sensitive data - NEVER COMMIT THESE!
+.env
+.env.local
+.env.*.local
+**/secrets/
+**/*secret*
+**/*credentials*
+**/*password*
+config.local.py
+
+# Data files (be specific - don't ignore ALL json)
+*.csv
+*.xlsx
+data/*.json
+
+# IDE
+.vscode/
+.idea/
+.claude/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+*.tmp
+
+# Streamlit
+.streamlit/secrets.toml
+.claude/settings.local.json
+
+# User state (personal data)
+user_state.json
+
+# Local analysis scripts (not needed for deployment)
+analyze_*.py
+export_for_backtest.py
+backtest_data.csv

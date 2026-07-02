@@ -1,0 +1,8 @@
+streamlit
+pandas
+requests
+plotly
+yfinance
+pytz
+python-dotenv
+python-dateutil
